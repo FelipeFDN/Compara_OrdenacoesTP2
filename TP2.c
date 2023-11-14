@@ -22,6 +22,7 @@ void insertionSort(long *A, int size);
 void quickSort(long *A, long start, long end, long *swapcont);
 
 void heapSort(long *A, int size);
+void radixSort(long *A, int size, long *swapcont);
 
 long partition_random(long *vet, long start, long end, long *swapcont);
 
@@ -34,7 +35,7 @@ void heapify(long *A, int size, int i, long *swapcont);
 int main(){
 
 	int i;
-	int tamanhoVetor = 1000000;
+	int tamanhoVetor = 100000;
     long vetor[tamanhoVetor];
 
     srand(time(NULL));
@@ -118,6 +119,21 @@ int main(){
         printf("%ld ", HeapVec[i]);*/
     printf("\n");
     free(HeapVec);
+
+    //Radix sort
+    long *RadixVec = (long *)malloc(tamanhoVetor * sizeof(long));
+    copia(vetor, RadixVec, tamanhoVetor);
+    printf("\nRadix sort: ");
+    begin = clock();
+    long swapcontradx = 0;
+    radixSort(RadixVec, tamanhoVetor, &swapcontradx);
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("\nTrocas: %ld\nTempo: %f\n\n", swapcont, time_spent);
+    /*for (i = 0; i < tamanhoVetor; i++)
+        printf("%ld ", RadixVec[i]);*/
+    printf("\n");
+    free(RadixVec);
 
 	return 0;
 }
@@ -251,7 +267,7 @@ void heapify(long *A, int size, int i, long *swapcont) {
     }
 }
 
-void heapSort(long *A, int size) {
+void heapSort(long *A, int size){
     long swapcont = 0;
 
     // Constrói o heap (rearranja o array)
@@ -267,4 +283,42 @@ void heapSort(long *A, int size) {
         heapify(A, i, 0, &swapcont);
     }
     printf("\nTrocas: %ld", swapcont);
+}
+
+// Função para realizar a ordenação por contagem no Radix Sort
+void countingSort(long *A, int size, long exp, long *swapcont) {
+    long output[size]; // Array de saída
+    int count[10] = {0};
+
+    // Contagem do número de ocorrências em count[]
+    for (int i = 0; i < size; i++)
+        count[(A[i] / exp) % 10]++;
+
+    // Altera count[i] para que contenha a posição real desse dígito em output[]
+    for (int i = 1; i < 10; i++)
+        count[i] += count[i - 1];
+
+    // Constrói o array de saída
+    for (int i = size - 1; i >= 0; i--) {
+        output[count[(A[i] / exp) % 10] - 1] = A[i];
+        count[(A[i] / exp) % 10]--;
+        (*swapcont)++;
+    }
+
+    // Copia o array de saída de volta para A[] para atualizar
+    for (int i = 0; i < size; i++)
+        A[i] = output[i];
+}
+
+// Função principal do Radix Sort
+void radixSort(long *A, int size, long *swapcont) {
+    // Encontrar o número máximo para saber o número de dígitos
+    long max = A[0];
+    for (int i = 1; i < size; i++)
+        if (A[i] > max)
+            max = A[i];
+
+    // Realiza a ordenação para cada dígito
+    for (long exp = 1; max / exp > 0; exp *= 10)
+        countingSort(A, size, exp, swapcont);
 }
