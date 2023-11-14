@@ -21,16 +21,20 @@ void selectionSort(long *A, int size);
 void insertionSort(long *A, int size);
 void quickSort(long *A, long start, long end, long *swapcont);
 
+void heapSort(long *A, int size);
+
 long partition_random(long *vet, long start, long end, long *swapcont);
 
 void swap (long *a, long *b);
 long partition(long arr[], long low, long high, long *swapcont);
 
+void heapify(long *A, int size, int i, long *swapcont);
+
 
 int main(){
 
 	int i;
-	int tamanhoVetor = 1000;
+	int tamanhoVetor = 1000000;
     long vetor[tamanhoVetor];
 
     srand(time(NULL));
@@ -53,8 +57,8 @@ int main(){
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("\nTempo: %f\n\n", time_spent);
-	for (i = 0 ; i < tamanhoVetor ; i++)
-    	printf("%ld ", bubbleVec[i]);
+	/*for (i = 0 ; i < tamanhoVetor ; i++)
+    	printf("%ld ", bubbleVec[i]);*/
 	printf("\n");
     free(bubbleVec);
 
@@ -67,8 +71,8 @@ int main(){
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("\nTempo: %f\n\n", time_spent);
-	for (i = 0 ; i < tamanhoVetor ; i++)
-    	printf("%ld ", SelectVec[i]);
+	/*for (i = 0 ; i < tamanhoVetor ; i++)
+    	printf("%ld ", SelectVec[i]);*/
 	printf("\n");
     free(SelectVec);
 
@@ -81,8 +85,8 @@ int main(){
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("\nTempo: %f\n\n", time_spent);
-	for (i = 0 ; i < tamanhoVetor ; i++)
-    	printf("%ld ", InsertVec[i]);
+	/*for (i = 0 ; i < tamanhoVetor ; i++)
+    	printf("%ld ", InsertVec[i]);*/
 	printf("\n");
     free(InsertVec);
 
@@ -96,10 +100,25 @@ int main(){
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("\nTrocas: %ld\nTempo: %f\n\n", swapcont, time_spent);
-	for (i = 0 ; i < tamanhoVetor ; i++)
-    	printf("%ld ", QuickVec[i]);
+	/*for (i = 0 ; i < tamanhoVetor ; i++)
+    	printf("%ld ", QuickVec[i]);*/
 	printf("\n");
     free(QuickVec);
+
+    // heap sort
+    long *HeapVec = (long *)malloc(tamanhoVetor * sizeof(long));
+    copia(vetor, HeapVec, tamanhoVetor);
+    printf("\nHeap sort: ");
+    begin = clock();
+    heapSort(HeapVec, tamanhoVetor);
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("\nTempo: %f\n\n", time_spent);
+    /*for (i = 0; i < tamanhoVetor; i++)
+        printf("%ld ", HeapVec[i]);*/
+    printf("\n");
+    free(HeapVec);
+
 	return 0;
 }
 
@@ -199,7 +218,6 @@ long partition(long arr[], long low, long high, long *swapcont) {
     return (i + 1);
 }
 
-
 long partition_random(long *vet, long start, long end, long *swapcont)
 {
 	// seleciona um número entre fim (inclusive) e inicio (inclusive)
@@ -209,4 +227,44 @@ long partition_random(long *vet, long start, long end, long *swapcont)
 	swap(&vet[pivo_indice], &vet[end]);
 	// chama a particiona
 	return partition(vet, start, end, swapcont);
+}
+
+void heapify(long *A, int size, int i, long *swapcont) {
+    int largest = i; // Inicializa o maior como raiz
+    int left = 2 * i + 1; // índice do filho à esquerda
+    int right = 2 * i + 2; // índice do filho à direita
+
+    // Se o filho à esquerda é maior que a raiz
+    if (left < size && A[left] > A[largest])
+        largest = left;
+
+    // Se o filho à direita é maior que o maior até agora
+    if (right < size && A[right] > A[largest])
+        largest = right;
+
+    // Se o maior não é a raiz
+    if (largest != i) {
+        swap(&A[i], &A[largest]);
+        (*swapcont)++;
+        // Recursivamente heapify a subárvore afetada
+        heapify(A, size, largest, swapcont);
+    }
+}
+
+void heapSort(long *A, int size) {
+    long swapcont = 0;
+
+    // Constrói o heap (rearranja o array)
+    for (int i = size / 2 - 1; i >= 0; i--)
+        heapify(A, size, i, &swapcont);
+
+    // Extrai elementos um por um do heap
+    for (int i = size - 1; i > 0; i--) {
+        // Move a raiz atual para o final
+        swap(&A[0], &A[i]);
+        swapcont++;
+        // chama max heapify no heap reduzido
+        heapify(A, i, 0, &swapcont);
+    }
+    printf("\nTrocas: %ld", swapcont);
 }
