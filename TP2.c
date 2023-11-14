@@ -129,7 +129,7 @@ int main(){
     radixSort(RadixVec, tamanhoVetor, &swapcontradx);
     end = clock();
     time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("\nTrocas: %ld\nTempo: %f\n\n", swapcont, time_spent);
+    printf("\nTrocas: %ld\nTempo: %f\n\n", swapcontradx, time_spent);
     /*for (i = 0; i < tamanhoVetor; i++)
         printf("%ld ", RadixVec[i]);*/
     printf("\n");
